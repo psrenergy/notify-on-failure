@@ -22,4 +22,4 @@ runs:
         token: ${{ inputs.token }}
         payload: |
           channel: "${{ inputs.channel }}"
-          text: "@channel publish failed: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>"
+          text: "<!channel> publish failed: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>"

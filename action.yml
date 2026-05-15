@@ -6,10 +6,10 @@ branding:
 
 inputs:
   token:
-    description: "Slack bot user OAuth token (typically secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN)"
+    description: "Slack bot user OAuth token"
     required: true
   channel:
-    description: "Slack channel ID (e.g. C0B43HDAPKQ) — use the ID, not the channel name"
+    description: "Slack channel ID"
     required: true
 
 runs:
@@ -22,9 +22,4 @@ runs:
         token: ${{ inputs.token }}
         payload: |
           channel: "${{ inputs.channel }}"
-          text: "Workflow failed: ${{ github.workflow }}"
-          blocks:
-            - type: "section"
-              text:
-                type: "mrkdwn"
-                text: "@channel <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} failed>"
+          text: "@channel publish failed: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>"

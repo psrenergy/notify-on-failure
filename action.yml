@@ -27,4 +27,4 @@ runs:
             - type: "section"
               text:
                 type: "mrkdwn"
-                text: "@channel, *${{ github.workflow }}* failed: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|view run>"
+                text: "@channel <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} failed>"

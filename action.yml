@@ -1,0 +1,45 @@
+name: "Create Tag and Release"
+description: "Reads a version from a TOML file and creates a GitHub release with the corresponding tag"
+branding:
+  icon: "tag"
+  color: "blue"
+
+inputs:
+  file:
+    description: "Path to the TOML file"
+    required: false
+    default: "Project.toml"
+  field:
+    description: "Field in the TOML file to read"
+    required: false
+    default: "version"
+  prefix:
+    description: "Prefix prepended to the version to form the tag"
+    required: false
+    default: "v"
+
+outputs:
+  version:
+    description: "Version value read from the TOML file"
+    value: ${{ steps.toml.outputs.value }}
+  tag:
+    description: "Full tag name (prefix + version)"
+    value: ${{ steps.compose.outputs.tag }}
+
+runs:
+  using: "composite"
+  steps:
+    - uses: SebRollen/toml-action@v1.2.0
+      id: toml
+      with:
+        file: ${{ inputs.file }}
+        field: ${{ inputs.field }}
+
+    - id: compose
+      shell: bash
+      run: echo "tag=${{ inputs.prefix }}${{ steps.toml.outputs.value }}" >> "$GITHUB_OUTPUT"
+
+    - uses: ncipollo/release-action@v1
+      with:
+        tag: ${{ steps.compose.outputs.tag }}
+        generateReleaseNotes: true

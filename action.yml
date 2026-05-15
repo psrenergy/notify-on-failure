@@ -1,45 +1,30 @@
-name: "Create Tag and Release"
-description: "Reads a version from a TOML file and creates a GitHub release with the corresponding tag"
+name: "Notify on Failure"
+description: "Posts a workflow failure notification to a Slack channel via slackapi/slack-github-action"
 branding:
-  icon: "tag"
-  color: "blue"
+  icon: "bell"
+  color: "red"
 
 inputs:
-  file:
-    description: "Path to the TOML file"
-    required: false
-    default: "Project.toml"
-  field:
-    description: "Field in the TOML file to read"
-    required: false
-    default: "version"
-  prefix:
-    description: "Prefix prepended to the version to form the tag"
-    required: false
-    default: "v"
-
-outputs:
-  version:
-    description: "Version value read from the TOML file"
-    value: ${{ steps.toml.outputs.value }}
-  tag:
-    description: "Full tag name (prefix + version)"
-    value: ${{ steps.compose.outputs.tag }}
+  token:
+    description: "Slack bot user OAuth token (typically secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN)"
+    required: true
+  channel:
+    description: "Slack channel ID (e.g. C0B43HDAPKQ) — use the ID, not the channel name"
+    required: true
 
 runs:
   using: "composite"
   steps:
-    - uses: SebRollen/toml-action@v1.2.0
-      id: toml
+    - name: Post failure message to Slack
+      uses: slackapi/slack-github-action@v2
       with:
-        file: ${{ inputs.file }}
-        field: ${{ inputs.field }}
-
-    - id: compose
-      shell: bash
-      run: echo "tag=${{ inputs.prefix }}${{ steps.toml.outputs.value }}" >> "$GITHUB_OUTPUT"
-
-    - uses: ncipollo/release-action@v1
-      with:
-        tag: ${{ steps.compose.outputs.tag }}
-        generateReleaseNotes: true
+        method: chat.postMessage
+        token: ${{ inputs.token }}
+        payload: |
+          channel: "${{ inputs.channel }}"
+          text: "Workflow failed: ${{ github.workflow }}"
+          blocks:
+            - type: "section"
+              text:
+                type: "mrkdwn"
+                text: "@channel, *${{ github.workflow }}* failed: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|view run>"
